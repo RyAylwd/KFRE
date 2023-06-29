@@ -1,0 +1,31 @@
+*Input
+*eGFR ml/min/1.73m2
+*age in years 
+*bicarb in mEq/L
+gen male=sex==1 // if male coded 1 in sex variable 
+
+*convert SI units to metric units if necessary
+gen acr_mg = acr*8.84 // mg/mmol to mg/g // urinary albumin to creatinine ratio
+gen logacr=log(acr_mg)
+gen ca_mg = ca*4 // mmol/L to mg/dL // calcium
+gen po4_mg = po4*3.1 // mmol/L to to mg/dL // phosphate
+gen alb_mg = albumin/10 // g/L to mg/dL // albumin
+
+****************************************************************
+*Output
+*4v 4 variable equation
+*8v 8 variable equation
+
+*2 year prediction*
+gen kfre4v2y=1 - (0.9832^exp(-0.2201 * (age/10 - 7.036) + 0.2467 * (male - 0.5642) - 0.5567 * (eGFR/5 - 7.222) + 0.4510 * (logacr - 5.137) ) )
+gen kfre8v2y=1 - (0.9827^exp(-0.1992 * (age/10 - 7.036) + 0.1602 * (male - 0.5642) - 0.4919 * (eGFR/5 - 7.222) + 0.3364 * (logacr - 5.137) - 0.3441 * (alb_mg - 3.997) + 0.2604 * (po4_mg - 3.916) - 0.07354 * (bicarb - 25.57) - 0.2228 * (ca_mg - 9.355) ) )
+
+*5 year prediction*
+gen kfre4v5y=1 - (0.9365^exp(-0.2201 * (age/10 - 7.036) + 0.2467 * (male - 0.5642) - 0.5567 * (eGFR/5 - 7.222) + 0.4510 * (logacr - 5.137)))
+gen kfre8v5y=1 - (0.9245^exp(-0.1992 * (age/10 - 7.036) + 0.1602 * (male - 0.5642) - 0.4919 * (eGFR/5 - 7.222) + 0.3364 * (logacr - 5.137) - 0.3441 * (alb_mg - 3.997) + 0.2604 * (po4_mg - 3.916) - 0.07354 * (bicarb - 25.57) - 0.2228 * (ca_mg - 9.355)))
+
+*Risk as %
+replace kfre4v2y = kfre4v2y*100
+replace kfre4v5y = kfre4v5y*100
+replace kfre8v2y = kfre8v2y*100
+replace kfre8v5y = kfre8v5y*100
